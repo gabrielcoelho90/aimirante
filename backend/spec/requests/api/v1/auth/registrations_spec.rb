@@ -51,19 +51,19 @@ RSpec.describe "Api::V1::Auth::Registrations", type: :request do
       it "returns HTTP 422 when email is taken" do
         create(:user, email: "novo@aimirante.com.br")
         post "/api/v1/auth/sign_up", params: valid_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns HTTP 422 when name is missing" do
         post "/api/v1/auth/sign_up",
           params: { user: valid_params[:user].merge(name: "") }
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns HTTP 422 when password is too short" do
         post "/api/v1/auth/sign_up",
           params: { user: valid_params[:user].merge(password: "short", password_confirmation: "short") }
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "returns validation errors in the body" do

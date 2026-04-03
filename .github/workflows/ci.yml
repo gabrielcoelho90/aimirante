@@ -33,6 +33,7 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/backend_test
+      DEVISE_JWT_SECRET_KEY: test_secret_key_for_ci_only_not_used_in_production
 
     steps:
       - uses: actions/checkout@v4
