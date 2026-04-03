@@ -6,7 +6,7 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/gabrielcoelho90/aimirante/ci.yml)](https://github.com/gabrielcoelho90/aimirante/actions)
 [![License](https://img.shields.io/badge/License-Proprietary-darkred)](LICENSE)
 
-AI.mirante is an AI-powered study platform built exclusively for Brazilian Navy Senior Officers preparing for the **CEMOS** (Curso de Estado-Maior para Oficiais Superiores) admission exam. It combines Retrieval-Augmented Generation (RAG), Spaced Repetition (SRS), and AI-generated summaries to help officers efficiently study the official bibliography — making the most of their limited time.
+AI.mirante is an AI-powered study platform built exclusively for Brazilian Navy Senior Officers preparing for the **CEMOS** (Senior Officers' Staff Course) admission exam. It combines Retrieval-Augmented Generation (RAG), Spaced Repetition (SRS), and AI-generated summaries to help officers efficiently study the official bibliography — making the most of their limited time.
 
 ---
 
