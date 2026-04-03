@@ -195,7 +195,7 @@ aimirante/
 
 ## Engineering Principles
 
-These principles guide how this project is built. Inspired by the article "Do Zero à Pós-Produção em 1 Semana" by AkitaOnRails, which documents building 4 production apps in 8 days using Claude Code + Extreme Programming.
+These principles guide how this project is built.
 
 ### 1. This is not "vibe coding" — it is XP accelerated by AI
 Vibe coding without discipline produces throwaway prototypes. This project follows Extreme Programming practices with Claude Code as the pair programming partner. The AI types fast, the human decides direction.
