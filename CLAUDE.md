@@ -193,7 +193,7 @@ aimirante/
 
 ---
 
-## Engineering Principles (based on Akita's article)
+## Engineering Principles
 
 These principles guide how this project is built. Inspired by the article "Do Zero à Pós-Produção em 1 Semana" by AkitaOnRails, which documents building 4 production apps in 8 days using Claude Code + Extreme Programming.
 
