@@ -11,11 +11,12 @@ module Api
             render json: { error: "E-mail ou senha inválidos." }, status: :unauthorized and return
           end
 
+          fingerprint = params[:device_fingerprint]
+          handle_device_change(user, fingerprint) if new_device?(user, fingerprint)
+          user.update!(active_device_fingerprint: fingerprint) if fingerprint.present?
+
           access_token = generate_access_token(user)
-          raw_refresh_token, = RefreshToken.generate_for(
-            user,
-            device_fingerprint: params[:device_fingerprint]
-          )
+          raw_refresh_token, = RefreshToken.generate_for(user, device_fingerprint: fingerprint)
 
           render json: sign_in_response(user, access_token, raw_refresh_token), status: :ok
         end
@@ -50,6 +51,17 @@ module Api
         end
 
         private
+
+        def new_device?(user, fingerprint)
+          fingerprint.present? &&
+            user.active_device_fingerprint.present? &&
+            user.active_device_fingerprint != fingerprint
+        end
+
+        def handle_device_change(user, fingerprint)
+          user.refresh_tokens.where(revoked_at: nil).find_each(&:revoke!)
+          DeviceAlertMailer.new_device_detected(user).deliver_later
+        end
 
         def sign_in_params
           params.require(:user).permit(:email, :password)

@@ -50,6 +50,93 @@ RSpec.describe "Api::V1::Auth::Sessions", type: :request do
       end
     end
 
+    context "when signing in from a new device (fingerprint changed)" do
+      let(:old_fingerprint) { "fp-old-device" }
+      let(:new_fingerprint) { "fp-new-device" }
+      let!(:existing_token) { create(:refresh_token, user: user) }
+
+      before { user.update!(active_device_fingerprint: old_fingerprint) }
+
+      it "revokes all previous active refresh tokens" do
+        post "/api/v1/auth/sign_in",
+          params: valid_params.merge(device_fingerprint: new_fingerprint)
+        expect(existing_token.reload.active?).to be false
+      end
+
+      it "updates active_device_fingerprint to the new value" do
+        post "/api/v1/auth/sign_in",
+          params: valid_params.merge(device_fingerprint: new_fingerprint)
+        expect(user.reload.active_device_fingerprint).to eq(new_fingerprint)
+      end
+
+      it "enqueues a device alert email" do
+        expect {
+          post "/api/v1/auth/sign_in",
+            params: valid_params.merge(device_fingerprint: new_fingerprint)
+        }.to have_enqueued_mail(DeviceAlertMailer, :new_device_detected)
+      end
+
+      it "still returns HTTP 200 with tokens" do
+        post "/api/v1/auth/sign_in",
+          params: valid_params.merge(device_fingerprint: new_fingerprint)
+        expect(response).to have_http_status(:ok)
+        expect(json["access_token"]).to be_present
+        expect(json["refresh_token"]).to be_present
+      end
+    end
+
+    context "when signing in from the same device (fingerprint unchanged)" do
+      let(:fingerprint) { "fp-same-device" }
+      let!(:existing_token) { create(:refresh_token, user: user, device_fingerprint: fingerprint) }
+
+      before { user.update!(active_device_fingerprint: fingerprint) }
+
+      it "does not revoke previous tokens" do
+        post "/api/v1/auth/sign_in",
+          params: valid_params.merge(device_fingerprint: fingerprint)
+        expect(existing_token.reload.active?).to be true
+      end
+
+      it "does not enqueue a device alert email" do
+        expect {
+          post "/api/v1/auth/sign_in",
+            params: valid_params.merge(device_fingerprint: fingerprint)
+        }.not_to have_enqueued_mail(DeviceAlertMailer, :new_device_detected)
+      end
+    end
+
+    context "when signing in without a fingerprint" do
+      let!(:existing_token) { create(:refresh_token, user: user) }
+
+      before { user.update!(active_device_fingerprint: "fp-existing") }
+
+      it "does not revoke previous tokens" do
+        post "/api/v1/auth/sign_in", params: valid_params
+        expect(existing_token.reload.active?).to be true
+      end
+
+      it "does not enqueue a device alert email" do
+        expect {
+          post "/api/v1/auth/sign_in", params: valid_params
+        }.not_to have_enqueued_mail(DeviceAlertMailer, :new_device_detected)
+      end
+    end
+
+    context "when signing in with a fingerprint for the first time" do
+      it "stores the fingerprint as active_device_fingerprint" do
+        post "/api/v1/auth/sign_in",
+          params: valid_params.merge(device_fingerprint: "fp-first")
+        expect(user.reload.active_device_fingerprint).to eq("fp-first")
+      end
+
+      it "does not enqueue a device alert email" do
+        expect {
+          post "/api/v1/auth/sign_in",
+            params: valid_params.merge(device_fingerprint: "fp-first")
+        }.not_to have_enqueued_mail(DeviceAlertMailer, :new_device_detected)
+      end
+    end
+
     context "with invalid credentials" do
       it "returns HTTP 401 for wrong password" do
         post "/api/v1/auth/sign_in",
