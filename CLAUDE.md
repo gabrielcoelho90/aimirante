@@ -246,7 +246,7 @@ CI pipeline runs on every push:
 - The developer is the brake, the code review, and the quality gate
 - If something feels over-engineered: it is. Simplify.
 
-### 10. Commit distribution target (based on Akita's data)
+### 10. Commit distribution target
 | Category | Target % |
 |---|---|
 | New features (feat:) | ~37% |
